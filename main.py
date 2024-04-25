@@ -13,6 +13,24 @@ pygame.display.set_caption("Fighting")
 
 bg_image = pygame.image.load("image/background/City of Tears.jpg").convert_alpha()
 
+#Đặt kích thước nhân vật
+WARRIOR_SIZE = 162
+WARRIOR_SCALE = 4
+WARRIOR_OFFSET = [72, 56]
+WARRIOR_DATA = [WARRIOR_SIZE, WARRIOR_SCALE, WARRIOR_OFFSET]
+WIZARD_SIZE = 250
+WIZARD_SCALE = 3
+WIZARD_OFFSET = [112, 107]
+WIZARD_DATA = [WIZARD_SIZE, WIZARD_SCALE, WIZARD_OFFSET]
+
+#Tải sprite nhân vật
+warrior_sheet = pygame.image.load("image\characters\warrior\Sprites\warrior.png").convert_alpha()
+wizard_sheet = pygame.image.load("image\characters\wizard\Sprites\wizard.png").convert_alpha()
+
+#Đặt số bước của mỗi hoạt ảnh
+WARRIOR_ANIMATION_STEPS = [10, 8, 1, 7, 7, 3, 7]
+WIZARD_ANIMATION_STEPS = [8, 8, 1, 8, 8, 3, 7]
+
 #Đặt tốc độ cập nhật frame
 clock = pygame.time.Clock()
 FPS = 60
@@ -35,8 +53,8 @@ def draw_health_bar(health, x, y):
     pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 #Tạo nhân vật
-character_1 = Character(200, 310)
-character_2 = Character(700, 310)
+character_1 = Character(200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS)
+character_2 = Character(700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS)
 
 #Vòng lập game
 run = True
@@ -51,7 +69,11 @@ while run:
 
     character_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, character_2)
 
-    #Vẽ nhân vật
+    #Cập nhật nhân vật
+    character_1.update()
+    character_2.update()
+
+    # #Vẽ nhân vật
     character_1.draw(screen)
     character_2.draw(screen)
 
