@@ -1,7 +1,8 @@
 import pygame
 
 class Character():
-    def __init__(self, x, y, flip, data, sprite_sheet, animation_steps):
+    def __init__(self, player, x, y, flip, data, sprite_sheet, animation_steps, sound):
+        self.player = player
         self.size = data[0]
         self.image_scale = data[1]
         self.offset = data[2]
@@ -18,6 +19,7 @@ class Character():
         self.attacking = False
         self.attack_type = 0
         self.attack_cooldown = 0
+        self.attack_sound = sound
         self.hit = False
         self.health = 100
         self.alive = True
@@ -34,19 +36,18 @@ class Character():
         return animation_list
 
 
-    def attack(self, surface, target):
+    def attack(self, target):
         if self.attack_cooldown == 0:
+            #Thực hiện tấn công
             self.attacking = True
+            self.attack_sound.play()
             attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
             if attacking_rect.colliderect(target.rect):
                 target.health -= 10
                 target.hit = True
 
-            pygame.draw.rect(surface, (0, 255, 0), attacking_rect)
-
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        pygame.draw.rect(surface, (255, 0, 0), self.rect)
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
 
     #Xử lý cập nhật hoạt ảnh
@@ -105,7 +106,7 @@ class Character():
             self.update_time = pygame.time.get_ticks()
 
 
-    def move(self, screen_width, screen_height, surface, target):
+    def move(self, screen_width, screen_height, target, round_over):
         toc_do = 10
         trong_luc = 2
         dx = 0
@@ -117,29 +118,54 @@ class Character():
         key = pygame.key.get_pressed()
 
         #Chỉ có thể thực hiện các hành động khác khi ngừng tấn công
-        if self.attacking == False:
-
+        if self.attacking == False and self.alive == True and round_over == False:
+            if self.player == 1:
             #di chuyển
-            if key[pygame.K_a]:
-                dx = -toc_do
-                self.running = True
-            if key[pygame.K_d]:
-                dx = toc_do
-                self.running = True
+                if key[pygame.K_a]:
+                    dx = -toc_do
+                    self.running = True
+                if key[pygame.K_d]:
+                    dx = toc_do
+                    self.running = True
 
-            #Nhảy
-            if key[pygame.K_w] and self.jump == False:
-                self.vel_y = -30
-                self.jump = True
-            
-            #Tấn công
-            if key[pygame.K_r] or key[pygame.K_t]:
-                self.attack(surface, target)
-                #Định hình đòn đánh
-                if key[pygame.K_r]:
-                    self.attack_type = 1
-                if key[pygame.K_t]:
-                    self.attack_type = 2
+                #Nhảy
+                if key[pygame.K_w] and self.jump == False:
+                    self.vel_y = -30
+                    self.jump = True
+                
+                #Tấn công
+                if key[pygame.K_r] or key[pygame.K_t]:
+                    self.attack(target)
+                    #Định hình đòn đánh
+                    if key[pygame.K_r]:
+                        self.attack_type = 1
+                    if key[pygame.K_t]:
+                        self.attack_type = 2
+
+
+
+            if self.player == 2:
+            #di chuyển
+                if key[pygame.K_LEFT]:
+                    dx = -toc_do
+                    self.running = True
+                if key[pygame.K_RIGHT]:
+                    dx = toc_do
+                    self.running = True
+
+                #Nhảy
+                if key[pygame.K_UP] and self.jump == False:
+                    self.vel_y = -30
+                    self.jump = True
+                
+                #Tấn công
+                if key[pygame.K_KP1] or key[pygame.K_KP2]:
+                    self.attack(target)
+                    #Định hình đòn đánh
+                    if key[pygame.K_KP1]:
+                        self.attack_type = 1
+                    if key[pygame.K_KP2]:
+                        self.attack_type = 2
 
         #Áp dụng trọng lực
         self.vel_y += trong_luc
