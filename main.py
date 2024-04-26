@@ -1,6 +1,7 @@
 import pygame
 from pygame import mixer
 from model.character import Character
+from model.button import Button
 
 
 pygame.init()
@@ -87,12 +88,24 @@ def draw_health_bar(health, x, y):
 character_1 = Character(1, 200, 310, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, sword_fx)
 character_2 = Character(2, 700, 310, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, magic_fx)
 
+
+#Tạo nút bấm
+start_image = pygame.image.load("image/button/start_btn.png").convert_alpha()
+exit_image = pygame.image.load("image/button/exit_btn.png").convert_alpha()
+start_button = Button(100, 200, start_image, 0.5)
+exit_button = Button(450, 200, exit_image, 0.5)
+
 #Vòng lập game
 run = True
 while run:
     clock.tick(FPS)
 
     draw_bg()
+    if start_button.draw(screen) == True:
+        print("Start")
+    if exit_button.draw(screen) == True:
+        run = False
+    
 
     #Hiện thanh máu nhân vật
     draw_health_bar(character_1.health,20, 20)
