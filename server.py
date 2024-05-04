@@ -1,68 +1,78 @@
 import socket
-import select
+from _thread import *
+import pickle
+from game import Game
 
-HEADER_LENGTH = 10
-IP = "127.0.0.1"
-PORT = 1234
+server = "localhost"
+port = 5555
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server_socket.bind((IP, PORT))
-server_socket.listen()
+try:
+    s.bind((server, port))
+except socket.error as e:
+    str(e)
 
-sockets_list = [server_socket]
+s.listen(2)
+print("Waiting for a connection, Server Started")
 
-clients = {}
+connected = set()
+games = {}
+idCount = 0
 
-def receive_message(client_socket):
+
+def threaded_client(conn, p, gameId):
+    global idCount
+    conn.send(str.encode(str(p)))
+    print("Player", p, " connected")
+
+    reply = ""
+    while True:
+        try:
+            data = conn.recv(4096)
+            game = games[gameId]
+            revThing = pickle.loads(data)
+            if not revThing:
+                break
+            else:
+                if isinstance(revThing, str):
+                    if revThing == "reset":
+                        print("game reseting")
+                        game.resetGame()
+                    elif data != "get":
+                        pass
+                    games[gameId] = game
+                    conn.sendall(pickle.dumps(game))
+                elif isinstance(revThing, Game):
+                    games[gameId] = revThing
+                    conn.sendall(pickle.dumps(revThing))
+
+        except:
+            break
+
+    print("Lost connection")
     try:
-        message_header = client_socket.recv(HEADER_LENGTH)
-
-        if not len(message_header):
-            return False
-        
-        message_length = int(message_header.decode("utf-8").strip())
-        return {"header": message_header, "data": client_socket.recv(message_length)}
-    
+        del games[gameId]
+        print("Closing Game", gameId)
     except:
-        return False
+        pass
+    idCount -= 1
+    conn.close()
 
+
+player = ["Dealer", "Player"]
 while True:
-    read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
+    conn, addr = s.accept()
+    print("Connected to:", addr)
 
-    for notified_socket in read_sockets:
-        if notified_socket == server_socket:
-            clients_socket, clients_address = server_socket.accept()
+    idCount += 1
+    p = 0
+    gameId = (idCount - 1) // 2
+    if idCount % 2 == 1:
+        games[gameId] = Game(gameId)
+        print("New Game")
+    else:
+        games[gameId].ready = True
+        p = 1
 
-            user = receive_message(clients_socket)
-            if user is False:
-                continue
-
-            sockets_list.append(clients_socket)
-
-            clients[clients_socket] = user
-
-            print(f"Chấp nhận kết nối từ {clients_address[0]}:{clients_address[1]} username:{user['data'].decode('utf-8')}")
-
-        else:
-            message = receive_message(notified_socket)
-
-            if message is False:
-                print(f"Ngắt kết nối từ {clients[notified_socket]['data'].decode('utf-8')}")
-                sockets_list.remove(notified_socket)
-                del clients[notified_socket]
-                continue
-            
-            user = clients[notified_socket]
-
-            print(f"Nhận tin nhắn từ {user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
-
-            for client_socket in clients:
-                if client_socket != notified_socket:
-                    client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
-    
-    for notified_socket in exception_sockets:
-        sockets_list.remove(notified_socket)
-        del clients[notified_socket]
-        
+    start_new_thread(threaded_client, (conn, player[p], gameId))
