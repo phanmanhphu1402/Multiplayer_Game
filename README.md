@@ -1,6 +1,4 @@
-**Trang giới thiệu game**
 
-https://naknguyenakiet.github.io/Nguon-Mo/
 
 **Hướng dẫn cài đặt game High and Low**
 
