@@ -48,5 +48,3 @@ game để có thể sử dụng hết tính năng của game.
 - Chạy file server.py để khởi động server
 
 - Chạy file client.py để chơi game
-
-## Python 3.12 | General Public License
