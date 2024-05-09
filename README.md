@@ -12,7 +12,7 @@ Truy cập đường dẫn sau để đến file trên GitHub: https://github.co
 Bước 2:
 Copy đường dẫn trên hoặc tham khảo hình dưới.
 
-![image](https://github.com/NakNguyenAKiet/CaroGame/assets/93853392/e864f9bb-1591-4e72-9221-3ec7d1f97846)
+![image](https://github.com/phanmanhphu1402/Multiplayer_Game/blob/main/image/Picture1.png)
 
 Bước 3:
 Chọn thư mục mà bạn muốn đặt game vào.
@@ -23,7 +23,7 @@ Bước 5: Trong Terminal nhập lệnh sau git init
 
 Bước 6: Tiếp theo nhập lệnh git clone và thêm đường dẫn
 
-![image](https://github.com/NakNguyenAKiet/CaroGame/assets/93853392/f75b7aec-8993-4e14-acdf-26d62a9e3bbd)
+![image](https://github.com/phanmanhphu1402/Multiplayer_Game/blob/main/image/Picture2.png)
 
 
 ## Cách 2: Tải file .zip
